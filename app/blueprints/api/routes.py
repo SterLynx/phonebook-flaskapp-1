@@ -3,6 +3,8 @@ from . import api
 from app import db
 from app.models import Post
 from .auth import basic_auth, token_auth
+from app.models import User
+from flask import jsonify
 
 
 # Endpoint to get token - requires username/password
@@ -57,3 +59,15 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return new_post.to_dict(), 201
+
+
+# API route for getting all the user information
+@api.route('/addresses', methods=["GET"])
+def get_addresses():
+    users = User.query.all()
+    user_list = [user.to_dict() for user in users]
+    return jsonify({'users': user_list})
+
+@api.route('/test', methods=["GET"])
+def test():
+    pass

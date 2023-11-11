@@ -13,6 +13,19 @@ class User(db.Model, UserMixin):
     address = db.Column(db.String, nullable=False, unique=True)
     phone_number = db.Column(db.String, nullable=False, unique=True)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<User info: {self.id}|{self.first_name}|{self.last_name}|{self.address}|{self.phone_number}|{self.date_created}>"
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'address': self.address,
+            'phone_number': self.phone_number,
+            'date_created': self.date_created
+        }
     
 
     def __init__(self, **kwargs):

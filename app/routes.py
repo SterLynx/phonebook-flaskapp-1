@@ -5,7 +5,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import SignUpForm, LoginForm, PostForm
 # Import the User model from models
 from app.models import User, Post
-
+from flask import jsonify
 # Create our first route
 @app.route('/')
 def index():
@@ -92,3 +92,10 @@ def create_post():
         return redirect(url_for('index'))
     
     return render_template('create_post.html', form=form)
+
+
+@app.route('/addresses', methods=["GET"])
+def get_addresses():
+    users = User.query.id()
+    user_list = [user.to_dict() for user in users]
+    return jsonify({'users': user_list})
