@@ -95,7 +95,7 @@ def create_post():
 
 
 @app.route('/addresses', methods=["GET"])
-def get_addresses():
-    users = User.query.id()
-    user_list = [user.to_dict() for user in users]
-    return jsonify({'users': user_list})
+def get_info():
+    users = User.query.order_by(User.id).all()
+    user_list = [user.address for user in users]
+    return jsonify({'Address List': user_list})

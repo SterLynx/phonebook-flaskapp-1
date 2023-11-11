@@ -59,15 +59,3 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return new_post.to_dict(), 201
-
-
-# API route for getting all the user information
-@api.route('/addresses', methods=["GET"])
-def get_addresses():
-    users = User.query.all()
-    user_list = [user.to_dict() for user in users]
-    return jsonify({'users': user_list})
-
-@api.route('/test', methods=["GET"])
-def test():
-    pass
