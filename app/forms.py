@@ -17,8 +17,8 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Log In')
 
-class PostForm(FlaskForm):
-    title = StringField('Title', validators=[InputRequired()])
-    body = TextAreaField('Body', validators=[InputRequired()])
-    image_url = StringField('Image URL')
-    submit = SubmitField('Create Post')
+class AddContact(FlaskForm):
+    title = StringField('First Name', validators=[InputRequired()])
+    body = TextAreaField('Last Name', validators=[InputRequired()])
+    image_url = StringField('Address')
+    submit = SubmitField('Add Contact')

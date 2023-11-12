@@ -2,65 +2,69 @@ from app import app, db
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 # Import the SignUpForm, LoginForm, and PostForm classes from forms
-from app.forms import SignUpForm, LoginForm, PostForm
+from app.forms import SignUpForm, LoginForm, AddContact
 # Import the User model from models
-from app.models import User, Post
-from flask import jsonify
+from app.models import User, Contact
 # Create our first route
 @app.route('/')
 def index():
     # SELECT * FROM post ORDER BY date_created DESC;
-    posts = db.session.execute(db.select(Post).order_by(db.desc(Post.date_created))).scalars().all()
-    return render_template('index.html', posts=posts)
+    # posts = db.session.execute(db.select(Post).order_by(db.desc(Post.date_created))).scalars().all()
+    return render_template('index.html')
 
-# Create a second route
-@app.route('/signup', methods=['GET', 'POST'])
+
+# Sign up route
+@app.route('/signup', methods=['GET','POST'])
 def signup():
-    # Create an instance of the SignUpForm
+    # create instance of the signupform
     form = SignUpForm()
     if form.validate_on_submit():
-        # Get the data from each of the fields
+        # Get the data from each of the fidls
         first_name = form.first_name.data
         last_name = form.last_name.data
-        address = form.address.data
-        phone_number = form.phone_number.data
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
         # print(first_name, last_name, username, email, password)
-
-        # Check to see if we already have a User with that username or email
-        # check_user = db.session.execute(db.select(User).where( (User.username==username) | (User.email==email) )).scalars().all()
-        # if check_user:
-        #     flash('A user with that username and/or email already exists')
-        #     return redirect(url_for('signup'))
-        # Create a new instance of the User class with the data from the form
-        new_user = User(first_name=first_name, last_name=last_name, address=address, phone_number=phone_number)
-        # Add the new user object to the database
+        
+        # Check to see if the user already exists
+        check_user = db.session.execute(db.select(User).where( (User.username==username) | (User.email==email) )).scalars().all()
+        if check_user:
+            flash('A user with that username and/or email already exists')
+            return redirect(url_for('signup'))
+        
+        # Create new instance of the User class with the data from the form
+        new_user = User(first_name = first_name, last_name = last_name, username = username, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
-
+        
         # log the newly created user in
-
+        login_user(new_user)
+        
+        flash(f"{new_user.username} has been created and is logged in!")
+        
         # Redirect back to the home page
-        return redirect(url_for('index'))
+        return redirect(url_for('phonebook'))
     return render_template('signup.html', form=form)
 
 
-@app.route('/login', methods=["GET","POST"])
+
+
+
+
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    # Create an instance of the LoginForm
     form = LoginForm()
     if form.validate_on_submit():
-        # Get the data from the form
         username = form.username.data
         password = form.password.data
         remember_me = form.remember_me.data
-        # Query the User table for a user with that username
         user = db.session.execute(db.select(User).where(User.username==username)).scalar()
-        # Check if there is a user AND the password is correct for that user
         if user is not None and user.check_password(password):
             login_user(user, remember=remember_me)
-            # log the user in via Flask-Login
-            flash(f'{user.username} has succesfully logged in.')
-            return redirect(url_for('index'))
+            # log user in via Flask-Login
+            flash(f'{user.username} has successfully logged in.')
+            return redirect(url_for('phonebook'))
         else:
             flash('Incorrect username and/or password')
             return redirect(url_for('login'))
@@ -72,30 +76,39 @@ def logout():
     flash('You have successfully logged out')
     return redirect(url_for('index'))
 
-@app.route('/create-post', methods=["GET", "POST"])
+
+
+
+@app.route('/phonebook')
 @login_required
-def create_post():
-    form = PostForm()
+def phonebook():
+    contacts = db.session.execute(db.select(User)).scalars().all()
+    return render_template('phonebook.html', contacts=contacts)
+
+
+
+
+
+# Add contact route
+@app.route('/add', methods=['GET', 'POST'])
+@login_required
+def add_contact():
+    form = AddContact()
     if form.validate_on_submit():
-        title = form.title.data
-        body = form.body.data
-        image_url = form.image_url.data or None
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        phone_number = form.phone_number.data
+        address = form.address.data
         
-        # Create an instance of Post with form data and logged in user's ID
-        new_post = Post(title=title, body=body, user_id=current_user.id, image_url=image_url)
-        # Add to the database
-        db.session.add(new_post)
+        check_contact = db.session.execute(db.select(Contact).where( (Contact.phone_number==phone_number))).scalars().all()
+        if check_contact:
+            flash('A contact with that phone number already exists')
+            return redirect(url_for('add_contact'))
+        
+        new_contact = Contact(first_name=first_name, last_name=last_name, phone_number=phone_number, address=address, user_id=current_user.id)
+        db.session.add(new_contact)
         db.session.commit()
-
-        # flash a success message
-        flash(f"{new_post.title} has been created")
-        return redirect(url_for('index'))
-    
-    return render_template('create_post.html', form=form)
-
-
-@app.route('/addresses', methods=["GET"])
-def get_info():
-    users = User.query.order_by(User.id).all()
-    user_list = [user.address for user in users]
-    return jsonify({'Address List': user_list})
+        flash(f"{new_contact} has been added to your contacts")
+        
+        return redirect(url_for('phonebook'))
+    return render_template('add.html', form=form)

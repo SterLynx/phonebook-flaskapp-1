@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Phonebook{% endblock %}
+
+{% block header %}
+    <h1>{{ current_user.first_name }}'s Phonebook</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="col-12 text-center mt-5 mb-5">
+        <h5>To add contacts click on the button bellow</h5>
+        <a class="btn btn-outline-dark w-100 mt-5" href="{{ url_for('add_contact') }}"style="margin-top: 10px;">Add Contact</a>
+    </div>
+
+    <div class="col-12 text-center mt-5 mb-5">
+        <h1 style="letter-spacing: 0.1em;">CONTACTS</h1>
+    </div>
+    {% for c in contacts %}
+    <div class="card mb-3 bg-light">
+        <div class="card-body">
+            <h5 class="card-title">{{ c.first_name }} {{ c.last_name }}</h5>
+            <p class="card-text">{{ c.phone_number }}</p>
+            <p class="card-text">{{ c.address }}</p>
+            <a href="{{ url_for('edit_contact', contact_id=c.id)}}" class="btn btn-primary">Edit</a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteContactModal-{{c.id}}">Delete</button>
+            <div class="modal fade" id="deleteContactModal-{{c.id}}" tabindex="-1" aria-labelledby="deleteContactModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deleteContactModalLabel">Delete {{ c.first_name }} {{ c.last_name }}?</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete {{ c.first_name }} {{ c.last_name }}? This action cannot be undone.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a class="btn btn-danger" href="{{ url_for('delete_contact', contact_id=c.id) }}">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
+

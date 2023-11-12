@@ -1,7 +1,7 @@
 from flask import request
 from . import api
 from app import db
-from app.models import Post
+from app.models import Contact
 from .auth import basic_auth, token_auth
 from app.models import User
 from flask import jsonify
@@ -16,21 +16,21 @@ def get_token():
     return {'token': token}
 
 # Endpoint to get all posts
-@api.route('/posts', methods=["GET"])
-def get_posts():
-    posts = db.session.execute(db.select(Post)).scalars().all()
-    return [post.to_dict() for post in posts]
+@api.route('/contacts', methods=["GET"])
+def get_contact():
+    contacts = db.session.execute(db.select(Contact)).scalars().all()
+    return [post.to_dict() for post in contacts]
 
 # Endpoint to get a post by ID
-@api.route('/posts/<post_id>')
-def get_post(post_id):
-    post = db.session.get(Post, post_id)
-    if not post:
-        return {'error': f'Post with an ID of {post_id} does not exist'}, 404
-    return post.to_dict()
+@api.route('/contacts/<contact_id>', methods=["GET"])
+def get_contact(contact_id):
+    contact = db.session.get(Contact, contact_id)
+    if not contact:
+        return {'error':f'Contact with an ID of {contact_id} does not exist'}, 404
+    return contact.to_dict
 
 # Endpoint to create a new post
-@api.route('/posts', methods=['POST'])
+@api.route('/contact', methods=['POST'])
 @token_auth.login_required
 def create_post():
     # Check to see that the request body is JSON
@@ -55,7 +55,7 @@ def create_post():
     current_user = token_auth.current_user()
     
     # Create a new Post to add to the database
-    new_post = Post(title=title, body=body, image_url=image_url, user_id=current_user.id)
+    new_post = Contact(title=title, body=body, image_url=image_url, user_id=current_user.id)
     db.session.add(new_post)
     db.session.commit()
     return new_post.to_dict(), 201
