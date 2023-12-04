@@ -22,3 +22,9 @@ class AddContact(FlaskForm):
     body = TextAreaField('Last Name', validators=[InputRequired()])
     image_url = StringField('Address')
     submit = SubmitField('Add Contact')
+
+
+class UserSignUpForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    submit = SubmitField('Sign Up')

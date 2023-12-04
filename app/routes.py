@@ -2,9 +2,9 @@ from app import app, db
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 # Import the SignUpForm, LoginForm, and PostForm classes from forms
-from app.forms import SignUpForm, LoginForm, AddContact
+from app.forms import SignUpForm, UserSignUpForm, LoginForm, AddContact
 # Import the User model from models
-from app.models import User, Contact
+from app.models import User, AccountUser, Contact
 # Create our first route
 @app.route('/')
 def index():
@@ -50,15 +50,17 @@ def login():
         username = form.username.data
         password = form.password.data
         remember_me = form.remember_me.data
-        user = db.session.execute(db.select(User).where(User.username==username)).scalar()
-        if user is not None and user.check_password(password):
+        
+        # Fetch the user from the database
+        user = AccountUser.query.filter_by(username=username).first()
+
+        if user and user.password == password:  # Check the password directly
             login_user(user, remember=remember_me)
-            # log user in via Flask-Login
             flash(f'{user.username} has successfully logged in.')
-            return redirect(url_for('phonebook'))
+            return redirect(url_for('phonebook'))  # Redirect to a logged-in page
         else:
             flash('Incorrect username and/or password')
-            return redirect(url_for('login'))
+
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -103,3 +105,20 @@ def add_contact():
         
         return redirect(url_for('phonebook'))
     return render_template('add.html', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = UserSignUpForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        
+        register_user = AccountUser(username=username, password=password)
+        db.session.add(register_user)
+        db.session.commit()
+
+        flash('Registration successful! You can now log in.')
+        return redirect(url_for('login'))
+
+    return render_template('register.html', form=form)

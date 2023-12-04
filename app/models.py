@@ -52,8 +52,8 @@ class User(db.Model, UserMixin):
         
 
 @login.user_loader
-def get_user(user_id):
-    return db.session.get(User, user_id)
+def load_user(user_id):
+    return AccountUser.query.get(int(user_id))
 
 def random_photo():
     random_number = random.randint(1,1000)
@@ -82,4 +82,21 @@ class Contact(db.Model, UserMixin):
             'address': self.address,
             'date_created': self.date_created,
             'user_id': self.user_id
+        }
+    
+class AccountUser(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<User info: {self.id}|{self.username}|{self.date_created}>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'password': self.password,
+            'date_created': self.date_created
         }
