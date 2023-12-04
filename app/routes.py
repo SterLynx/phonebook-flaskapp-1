@@ -75,7 +75,8 @@ def logout():
 @app.route('/phonebook')
 @login_required
 def phonebook():
-    contacts = db.session.execute(db.select(User)).scalars().all()
+    user = AccountUser.query.get(current_user.id)
+    contacts = user.contacts 
     return render_template('phonebook.html', contacts=contacts)
 
 
@@ -86,7 +87,7 @@ def phonebook():
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_contact():
-    form = AddContact()
+    form = SignUpForm()
     if form.validate_on_submit():
         first_name = form.first_name.data
         last_name = form.last_name.data

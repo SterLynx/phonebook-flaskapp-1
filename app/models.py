@@ -6,9 +6,6 @@ from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-
-
-
 # Phonebook user
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,13 +28,10 @@ class User(db.Model, UserMixin):
             'date_created': self.date_created
         }
     
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.password = generate_password_hash(kwargs.get('password', ''))
 
-    
-    
     def check_password(self, password_guess):
         return check_password_hash(self.password, password_guess)
 
@@ -49,7 +43,6 @@ class User(db.Model, UserMixin):
         self.token_expiration = now + timedelta(hours=1)
         db.session.commit()
         return self.token
-        
 
 @login.user_loader
 def load_user(user_id):
@@ -59,17 +52,17 @@ def random_photo():
     random_number = random.randint(1,1000)
     return f"https://picsum.photos/500?random={random_number}"
 
-
 # Phonebook model
-class Contact(db.Model, UserMixin):
+class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, nullable=False, unique=True)
     address = db.Column(db.String, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
+    user_id = db.Column(db.Integer, db.ForeignKey('account_user.id'), nullable=False)
+    owner = db.relationship('AccountUser', backref='contacts', foreign_keys=[user_id])
+    
     def __repr__(self):
         return f"<Contact {self.id}|{self.first_name} {self.last_name}>"
     
