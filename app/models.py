@@ -7,20 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 
-# Signup user
-class Username(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String, nullable=False)
-    last_name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, nullable=False, unique=True)
-    username = db.Column(db.String, nullable=False, unique=True)
-    password = db.Column(db.String, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    contacts = db.relationship('Contact', backref='author')
-    token = db.Column(db.String(32), index=True, unique=True)
-    token_expiration = db.Column(db.DateTime)
-
-
 
 
 # Phonebook user
@@ -73,26 +59,6 @@ def random_photo():
     random_number = random.randint(1,1000)
     return f"https://picsum.photos/500?random={random_number}"
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, nullable=False)
-    body = db.Column(db.String, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    image_url = db.Column(db.String, default=random_photo)
-
-    def __repr__(self):
-        return f"<Post {self.id}|{self.title}>"
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'body': self.body,
-            'date_created': self.date_created,
-            'user_id': self.user_id,
-            'image_url': self.image_url
-        }
 
 # Phonebook model
 class Contact(db.Model, UserMixin):

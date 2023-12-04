@@ -22,26 +22,17 @@ def signup():
         # Get the data from each of the fidls
         first_name = form.first_name.data
         last_name = form.last_name.data
-        username = form.username.data
-        email = form.email.data
-        password = form.password.data
+        address = form.address.data
+        phone_number = form.phone_number.data
         # print(first_name, last_name, username, email, password)
         
-        # Check to see if the user already exists
-        check_user = db.session.execute(db.select(User).where( (User.username==username) | (User.email==email) )).scalars().all()
-        if check_user:
-            flash('A user with that username and/or email already exists')
-            return redirect(url_for('signup'))
-        
         # Create new instance of the User class with the data from the form
-        new_user = User(first_name = first_name, last_name = last_name, username = username, email=email, password=password)
+        new_user = User(first_name = first_name, last_name = last_name, address=address, phone_number=phone_number)
         db.session.add(new_user)
         db.session.commit()
         
         # log the newly created user in
         login_user(new_user)
-        
-        flash(f"{new_user.username} has been created and is logged in!")
         
         # Redirect back to the home page
         return redirect(url_for('phonebook'))

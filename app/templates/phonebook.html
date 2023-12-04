@@ -21,7 +21,6 @@
             <h5 class="card-title">{{ c.first_name }} {{ c.last_name }}</h5>
             <p class="card-text">{{ c.phone_number }}</p>
             <p class="card-text">{{ c.address }}</p>
-            <a href="{{ url_for('edit_contact', contact_id=c.id)}}" class="btn btn-primary">Edit</a>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteContactModal-{{c.id}}">Delete</button>
             <div class="modal fade" id="deleteContactModal-{{c.id}}" tabindex="-1" aria-labelledby="deleteContactModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -35,7 +34,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <a class="btn btn-danger" href="{{ url_for('delete_contact', contact_id=c.id) }}">Delete</a>
+                            
                         </div>
                     </div>
                 </div>

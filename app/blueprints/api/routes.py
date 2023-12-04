@@ -17,7 +17,7 @@ def get_token():
 
 # Endpoint to get all posts
 @api.route('/contacts', methods=["GET"])
-def get_contact():
+def get_all_contacts():
     contacts = db.session.execute(db.select(Contact)).scalars().all()
     return [post.to_dict() for post in contacts]
 
